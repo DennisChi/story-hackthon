@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useAppKit } from "@reown/appkit/react";
 import { useAccount } from "wagmi";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,10 +13,28 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function Navbar() {
   const { open } = useAppKit();
   const { isReconnecting, address } = useAccount();
+
+  const router = useRouter();
+  const { status } = useSession();
+  const prevStatus = useRef(status);
+  useEffect(() => {
+    if (status === "loading") return;
+    if (prevStatus.current === "loading") {
+      prevStatus.current = status;
+      return;
+    }
+    if (status !== prevStatus.current) {
+      router.refresh();
+    }
+    prevStatus.current = status;
+  }, [router, status]);
+
   const walletButtonContent = address ? (
     <div className="flex items-center gap-2">
       <span>

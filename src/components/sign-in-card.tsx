@@ -4,7 +4,7 @@ export default function SignInCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Login</CardTitle>
+        <CardTitle>Please Connect Your Wallet</CardTitle>
       </CardHeader>
     </Card>
   );
