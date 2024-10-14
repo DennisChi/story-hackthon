@@ -94,5 +94,5 @@ export async function GET(req: Request) {
 
   // TODO: create a cron job to fetch tweets from the user
 
-  return NextResponse.json({ message: "Hello World" });
+  return NextResponse.redirect("http://localhost:3000/register");
 }

@@ -55,7 +55,14 @@ export default function RegisterForm({
   };
 
   const connectSteam = () => {
-    console.log("connectSteam");
+    if (steamConnected) return;
+    if (!address) {
+      toast({ title: "Please connect your wallet" });
+      return;
+    }
+    window.open(
+      "https://steamcommunity.com/openid/login?openid.ns=http://specs.openid.net/auth/2.0&openid.mode=checkid_setup&openid.return_to=http://localhost:3000/api/callback/steam?address=0x062d7d87D7cF4DfE21607aaC86301FA17b21b8d5&openid.realm=http://localhost:3000&openid.identity=http://specs.openid.net/auth/2.0/identifier_select&openid.claimed_id=http://specs.openid.net/auth/2.0/identifier_select"
+    );
   };
 
   const onSubmit = (data: FormSchema) => {
