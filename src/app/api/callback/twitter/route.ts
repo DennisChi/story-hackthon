@@ -1,5 +1,7 @@
 import { sql } from "@vercel/postgres";
 import { NextResponse } from "next/server";
+import { generateText } from "ai";
+import { google } from "@ai-sdk/google";
 
 export interface OAuthTokens {
   accessToken: string;
@@ -7,11 +9,19 @@ export interface OAuthTokens {
   expiresAt: number;
 }
 
+export interface Tweet {
+  id: string;
+  text: string;
+  edit_history_tweet_ids: string[];
+}
+
 export interface TwitterUser {
   id: string;
   name: string;
   username: string;
   tokens?: OAuthTokens;
+  tweets?: Tweet[];
+  tags?: string[];
 }
 
 const exchangeCode = async (code: string): Promise<OAuthTokens> => {
@@ -32,7 +42,7 @@ const exchangeCode = async (code: string): Promise<OAuthTokens> => {
   urlencoded.append("client_id", "ZjdBQWI1ZVBVYWRpNWVxWTFvSUQ6MTpjaQ");
   urlencoded.append(
     "redirect_uri",
-    "http://localhost:3000/api/callback/twitter"
+    `${process.env.BASE_URL}/api/callback/twitter`
   );
   urlencoded.append("code_verifier", "challenge");
 
@@ -73,9 +83,28 @@ const saveTwitterUser = async (address: string, user: TwitterUser) => {
   }
   await sql`
     UPDATE users
-    SET twitter_id=${user.id}, twitter_access_token=${tokens.accessToken}, twitter_refresh_token=${tokens.refreshToken}, twitter_expires_at=${tokens.expiresAt}
+    SET twitter_id=${user.id}, twitter_access_token=${
+    tokens.accessToken
+  }, twitter_refresh_token=${tokens.refreshToken}, twitter_expires_at=${
+    tokens.expiresAt
+  }, tweets=${JSON.stringify(user.tweets)}, twitter_tags=${JSON.stringify(
+    user.tags
+  )}
     WHERE wallet_address = ${address}
   `;
+};
+
+const getLatestTweets = async (twitterId: string, tokens: OAuthTokens) => {
+  const response = await fetch(
+    `https://api.twitter.com/2/users/${twitterId}/tweets?max_results=100`,
+    {
+      headers: {
+        Authorization: `Bearer ${tokens.accessToken}`,
+      },
+    }
+  );
+  const result = await response.json();
+  return result.data;
 };
 
 export async function GET(req: Request) {
@@ -90,9 +119,24 @@ export async function GET(req: Request) {
 
   const tokens = await exchangeCode(code);
   const twitterUser = await getTwitterUser(tokens);
+  const latestTweets = await getLatestTweets(twitterUser.id, tokens);
+  twitterUser.tweets = latestTweets;
+  const result = await generateText({
+    model: google("gemini-1.5-pro"),
+    prompt: `"""
+    ${JSON.stringify(twitterUser)}
+    """
+    
+    Please list five tags for this user based on the above Twitter user data. The output format should be a JSON array with no additional output. Just provide the JSON array directly.`,
+  });
+  let tags: string[] = [];
+  try {
+    tags = JSON.parse(result.text);
+  } catch (e) {
+    console.error(e);
+  }
+  twitterUser.tags = tags;
   await saveTwitterUser(address, twitterUser);
 
-  // TODO: create a cron job to fetch tweets from the user
-
-  return NextResponse.redirect("http://localhost:3000/register");
+  return NextResponse.redirect(`${process.env.BASE_URL}/register`);
 }

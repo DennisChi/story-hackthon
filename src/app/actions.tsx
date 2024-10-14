@@ -10,6 +10,8 @@ export interface User {
     nickname: string;
     rawAvatar: string;
   };
+  twitterTags?: string[];
+  steamTags?: string[];
 }
 
 export const getUser = async (address: string): Promise<User> => {
@@ -35,6 +37,8 @@ export const getUser = async (address: string): Promise<User> => {
     address,
     twitterId: user.twitter_id,
     steamId: user.steam_id,
+    twitterTags: user.twitter_tags ? JSON.parse(user.twitter_tags) : undefined,
+    steamTags: user.steam_tags ? JSON.parse(user.steam_tags) : undefined,
     passport,
   };
 };
