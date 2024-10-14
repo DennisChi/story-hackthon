@@ -1,7 +1,7 @@
 // context/index.tsx
 "use client";
 
-import { wagmiAdapter, projectId } from "@/config";
+import { wagmiAdapter, projectId, siweConfig } from "@/config";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createAppKit } from "@reown/appkit/react";
 import { mainnet } from "@reown/appkit/networks";
@@ -35,6 +35,7 @@ createAppKit({
     socials: false,
     email: false,
   },
+  siweConfig: siweConfig,
 });
 
 function ContextProvider({
