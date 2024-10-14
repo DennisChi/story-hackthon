@@ -23,6 +23,7 @@ import { useState, useRef } from "react";
 import Image from "next/image";
 import { useToast } from "@/hooks/use-toast";
 import { useAccount } from "wagmi";
+import { useRouter } from "next/navigation";
 
 interface FormSchema {
   nickname: string;
@@ -33,6 +34,22 @@ export interface RegisterFormProps {
   steamConnected: boolean;
 }
 
+const fileToHexString = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const arrayBuffer = reader.result as ArrayBuffer;
+      const uint8Array = new Uint8Array(arrayBuffer);
+      const hexString = Array.from(uint8Array)
+        .map((byte) => byte.toString(16).padStart(2, "0"))
+        .join("");
+      resolve(hexString);
+    };
+    reader.onerror = reject;
+    reader.readAsArrayBuffer(file);
+  });
+};
+
 export default function RegisterForm({
   twitterConnected,
   steamConnected,
@@ -42,6 +59,8 @@ export default function RegisterForm({
   const [file, setFile] = useState<File>();
   const form = useForm<FormSchema>();
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
 
   const connectTwitter = () => {
     if (twitterConnected) return;
@@ -65,7 +84,7 @@ export default function RegisterForm({
     );
   };
 
-  const onSubmit = (data: FormSchema) => {
+  const onSubmit = async (data: FormSchema) => {
     if (!file) {
       toast({ title: "Please upload an avatar" });
       return;
@@ -78,7 +97,22 @@ export default function RegisterForm({
       toast({ title: "Please connect Steam" });
       return;
     }
-    console.log(data);
+
+    setIsSubmitting(true);
+    const hexString = await fileToHexString(file);
+    fetch("/api/passport", {
+      method: "POST",
+      body: JSON.stringify({ ...data, address, avatar: hexString }),
+    })
+      .then(() => {
+        router.replace("/passport");
+      })
+      .catch((err) => {
+        toast({ title: "Error registering", description: err.message });
+      })
+      .finally(() => {
+        setIsSubmitting(false);
+      });
   };
 
   return (
@@ -189,7 +223,13 @@ export default function RegisterForm({
               </div>
             </CardContent>
             <CardFooter>
-              <Button type="submit">Register</Button>
+              <Button
+                loading={isSubmitting}
+                loadingText="Submitting..."
+                type="submit"
+              >
+                Register
+              </Button>
             </CardFooter>
           </form>
         </Form>
