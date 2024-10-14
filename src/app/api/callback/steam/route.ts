@@ -56,5 +56,5 @@ export async function GET(req: NextRequest) {
     )}, steam_tags=${JSON.stringify(tags)} WHERE wallet_address=${address}`;
   }
 
-  return NextResponse.redirect(`${process.env.BASE_URL}/register`);
+  return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/register`);
 }

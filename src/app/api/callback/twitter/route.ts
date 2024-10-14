@@ -42,7 +42,7 @@ const exchangeCode = async (code: string): Promise<OAuthTokens> => {
   urlencoded.append("client_id", "ZjdBQWI1ZVBVYWRpNWVxWTFvSUQ6MTpjaQ");
   urlencoded.append(
     "redirect_uri",
-    `${process.env.BASE_URL}/api/callback/twitter`
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/callback/twitter`
   );
   urlencoded.append("code_verifier", "challenge");
 
@@ -138,5 +138,5 @@ export async function GET(req: Request) {
   twitterUser.tags = tags;
   await saveTwitterUser(address, twitterUser);
 
-  return NextResponse.redirect(`${process.env.BASE_URL}/register`);
+  return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/register`);
 }

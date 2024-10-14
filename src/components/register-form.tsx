@@ -69,7 +69,7 @@ export default function RegisterForm({
       return;
     }
     window.open(
-      `https://twitter.com/i/oauth2/authorize?response_type=code&client_id=ZjdBQWI1ZVBVYWRpNWVxWTFvSUQ6MTpjaQ&redirect_uri=${process.env.BASE_URL}/api/callback/twitter&scope=tweet.read+users.read+offline.access&state=${address}&code_challenge=challenge&code_challenge_method=plain`
+      `https://twitter.com/i/oauth2/authorize?response_type=code&client_id=ZjdBQWI1ZVBVYWRpNWVxWTFvSUQ6MTpjaQ&redirect_uri=${process.env.NEXT_PUBLIC_BASE_URL}/api/callback/twitter&scope=tweet.read+users.read+offline.access&state=${address}&code_challenge=challenge&code_challenge_method=plain`
     );
   };
 
@@ -80,7 +80,7 @@ export default function RegisterForm({
       return;
     }
     window.open(
-      `https://steamcommunity.com/openid/login?openid.ns=http://specs.openid.net/auth/2.0&openid.mode=checkid_setup&openid.return_to=${process.env.BASE_URL}/api/callback/steam?address=${address}&openid.realm=${process.env.BASE_URL}&openid.identity=http://specs.openid.net/auth/2.0/identifier_select&openid.claimed_id=http://specs.openid.net/auth/2.0/identifier_select`
+      `https://steamcommunity.com/openid/login?openid.ns=http://specs.openid.net/auth/2.0&openid.mode=checkid_setup&openid.return_to=${process.env.NEXT_PUBLIC_BASE_URL}/api/callback/steam?address=${address}&openid.realm=${process.env.NEXT_PUBLIC_BASE_URL}&openid.identity=http://specs.openid.net/auth/2.0/identifier_select&openid.claimed_id=http://specs.openid.net/auth/2.0/identifier_select`
     );
   };
 
