@@ -61,7 +61,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div>
+    <div className="p-4">
       <Card className="max-w-4xl m-auto my-16">
         <CardHeader>
           <CardTitle>Register</CardTitle>

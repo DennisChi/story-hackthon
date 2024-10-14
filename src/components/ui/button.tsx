@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
-
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
@@ -74,7 +74,18 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         {loading ? (
-          <div className="animate-pulse">{loadingText}</div>
+          <div className="flex items-center gap-2">
+            <span>
+              <Image
+                className="animate-spin"
+                src="/images/arrow-path.svg"
+                alt="Loading"
+                width={20}
+                height={20}
+              />
+            </span>
+            <span className="animate-pulse hidden md:block">{loadingText}</span>
+          </div>
         ) : (
           children
         )}
