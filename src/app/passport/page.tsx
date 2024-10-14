@@ -3,12 +3,13 @@ import { getUser } from "../actions";
 import PassportCard from "@/components/passport-card";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/config/next-auth";
+import SignInCard from "@/components/sign-in-card";
 
 export default async function PassportPage() {
   const session = await getServerSession(authOptions);
   const address = session?.address;
   if (!address) {
-    return <div>Please connect your wallet</div>;
+    return <SignInCard />;
   }
   const user = await getUser(address);
   if (!user.passport) {

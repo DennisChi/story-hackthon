@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import ContextProvider from "@/components/context-provider";
 import Navbar from "@/components/navbar";
 import { Toaster } from "@/components/ui/toaster";
+import ClientProviders from "@/components/client-providers";
 
 export const metadata: Metadata = {
   title: "GamePlus",
@@ -20,11 +21,13 @@ export default function RootLayout({
   return (
     <html lang="en" className="bg-background">
       <body className="antialiased bg-background">
-        <ContextProvider cookies={cookies}>
-          <Navbar />
-          <Toaster />
-          {children}
-        </ContextProvider>
+        <ClientProviders>
+          <ContextProvider cookies={cookies}>
+            <Navbar />
+            <Toaster />
+            <div className="p-8">{children}</div>
+          </ContextProvider>
+        </ClientProviders>
       </body>
     </html>
   );
