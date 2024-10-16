@@ -25,7 +25,7 @@ export default function RootLayout({
           <ContextProvider cookies={cookies}>
             <Navbar />
             <Toaster />
-            <div className="p-8">{children}</div>
+            <div className="pt-16">{children}</div>
           </ContextProvider>
         </ClientProviders>
       </body>

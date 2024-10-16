@@ -95,7 +95,7 @@ export default function Navbar() {
   );
 
   return (
-    <div className="bg-card border-b border-border px-4 py-3 flex justify-between items-center">
+    <nav className="bg-card border-b border-border px-4 py-3 flex justify-between items-center fixed w-full h-16">
       <div>
         <Image
           src="/images/navbar-logo.png"
@@ -110,6 +110,6 @@ export default function Navbar() {
       </div>
       <div className="hidden md:block">{navLinkList}</div>
       <div className="hidden md:block">{walletButton}</div>
-    </div>
+    </nav>
   );
 }
