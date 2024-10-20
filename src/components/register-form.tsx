@@ -22,9 +22,9 @@ import { Button } from "@/components/ui/button";
 import { useState, useRef } from "react";
 import Image from "next/image";
 import { useToast } from "@/hooks/use-toast";
-import { useAccount } from "wagmi";
+import { useAccount, useWriteContract } from "wagmi";
 import { useRouter } from "next/navigation";
-
+import GamePlusPassport from "../../public/GamePlusPassport.json";
 interface FormSchema {
   nickname: string;
 }
@@ -61,6 +61,9 @@ export default function RegisterForm({
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
+  const { writeContractAsync } = useWriteContract({
+    mutation: { onSuccess: () => router.replace("/passport") },
+  });
 
   const connectTwitter = () => {
     if (twitterConnected) return;
@@ -69,7 +72,8 @@ export default function RegisterForm({
       return;
     }
     window.open(
-      `https://twitter.com/i/oauth2/authorize?response_type=code&client_id=ZjdBQWI1ZVBVYWRpNWVxWTFvSUQ6MTpjaQ&redirect_uri=${process.env.NEXT_PUBLIC_BASE_URL}/api/callback/twitter&scope=tweet.read+users.read+offline.access&state=${address}&code_challenge=challenge&code_challenge_method=plain`
+      `https://twitter.com/i/oauth2/authorize?response_type=code&client_id=ZjdBQWI1ZVBVYWRpNWVxWTFvSUQ6MTpjaQ&redirect_uri=${process.env.NEXT_PUBLIC_BASE_URL}/api/callback/twitter&scope=tweet.read+users.read+offline.access&state=${address}&code_challenge=challenge&code_challenge_method=plain`,
+      "_self"
     );
   };
 
@@ -80,7 +84,8 @@ export default function RegisterForm({
       return;
     }
     window.open(
-      `https://steamcommunity.com/openid/login?openid.ns=http://specs.openid.net/auth/2.0&openid.mode=checkid_setup&openid.return_to=${process.env.NEXT_PUBLIC_BASE_URL}/api/callback/steam?address=${address}&openid.realm=${process.env.NEXT_PUBLIC_BASE_URL}&openid.identity=http://specs.openid.net/auth/2.0/identifier_select&openid.claimed_id=http://specs.openid.net/auth/2.0/identifier_select`
+      `https://steamcommunity.com/openid/login?openid.ns=http://specs.openid.net/auth/2.0&openid.mode=checkid_setup&openid.return_to=${process.env.NEXT_PUBLIC_BASE_URL}/api/callback/steam?address=${address}&openid.realm=${process.env.NEXT_PUBLIC_BASE_URL}&openid.identity=http://specs.openid.net/auth/2.0/identifier_select&openid.claimed_id=http://specs.openid.net/auth/2.0/identifier_select`,
+      "_self"
     );
   };
 
@@ -100,19 +105,20 @@ export default function RegisterForm({
 
     setIsSubmitting(true);
     const hexString = await fileToHexString(file);
-    fetch("/api/passport", {
+
+    const response = await fetch("/api/passport", {
       method: "POST",
       body: JSON.stringify({ ...data, address, avatar: hexString }),
-    })
-      .then(() => {
-        router.replace("/passport");
-      })
-      .catch((err) => {
-        toast({ title: "Error registering", description: err.message });
-      })
-      .finally(() => {
-        setIsSubmitting(false);
-      });
+    });
+    const result = await response.json();
+    const { tokenId } = result;
+
+    await writeContractAsync({
+      abi: GamePlusPassport.abi,
+      functionName: "safeMint",
+      address: "0x8DB4d461EcB9742Fd00acA37Dd4Dd029d167FFD6",
+      args: [address, tokenId],
+    });
   };
 
   return (

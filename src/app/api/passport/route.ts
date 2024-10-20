@@ -31,8 +31,10 @@ export async function POST(req: NextRequest) {
   });
 
   await sql`UPDATE users SET raw_avatar_url=${blob.url}, nickname=${nickname} WHERE wallet_address=${address}`;
+  await sql`INSERT INTO metadata (url) VALUES (${blob.url})`;
+  const queryResult = await sql`SELECT id FROM metadata WHERE url=${blob.url}`;
 
   // TODO: create pixel avatar
 
-  return NextResponse.json({ success: true });
+  return NextResponse.json({ success: true, tokenId: queryResult.rows[0].id });
 }

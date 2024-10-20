@@ -1,6 +1,6 @@
 import { cookieStorage, createStorage } from "@wagmi/core";
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
-import { mainnet } from "@reown/appkit/networks";
+import { storyTestnet } from "@reown/appkit/networks";
 import { getCsrfToken, signIn, signOut, getSession } from "next-auth/react";
 import type {
   SIWEVerifyMessageArgs,
@@ -16,7 +16,7 @@ export const siweConfig = createSIWEConfig({
   getMessageParams: async () => ({
     domain: typeof window !== "undefined" ? window.location.host : "",
     uri: typeof window !== "undefined" ? window.location.origin : "",
-    chains: [mainnet.id],
+    chains: [storyTestnet.id],
     statement: "Please sign with your account",
   }),
   createMessage: ({ address, ...args }: SIWECreateMessageArgs) =>
@@ -78,7 +78,7 @@ if (!projectId) {
   throw new Error("Project ID is not defined");
 }
 
-export const networks = [mainnet];
+export const networks = [storyTestnet];
 
 //Set up the Wagmi Adapter (Config)
 export const wagmiAdapter = new WagmiAdapter({
